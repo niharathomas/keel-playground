@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: pushwf  
+  labels: 
+    name: "pushwf"
+    # force policy will ensure that deployment is updated
+    # even when tag is unchanged (latest remains)
+    keel.sh/policy: force
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: pushwf
+  template:
+    metadata:
+      name: pushwf
+      labels:
+        app: pushwf
+    spec:     
+      containers:                    
+        - image: keelhq/push-workflow-example:latest
+          imagePullPolicy: Always # this is required to force pull image     
+          name: pushwf
+          ports:
+            - containerPort: 8500
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8500
+            initialDelaySeconds: 10
+            timeoutSeconds: 5    
